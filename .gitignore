@@ -1,2 +1,3 @@
-:build/CMakeCache.txt
-:devel/.build.py
+build/*
+devel/*
+
