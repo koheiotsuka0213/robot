@@ -1,8 +1,0 @@
-prefix=/home/kohei/robot/devel
-
-Name: slam
-Description: Description of slam
-Version: 0.0.0
-Cflags: -I/home/kohei/robot/devel/include
-Libs: -L/home/kohei/robot/devel/lib 
-Requires: message_runtime roscpp rospy std_msgs

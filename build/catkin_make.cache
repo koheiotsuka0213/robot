@@ -1,2 +1,0 @@
-slam
--DCATKIN_DEVEL_PREFIX=/home/kohei/robot/devel -DCMAKE_INSTALL_PREFIX=/home/kohei/robot/install -G Unix Makefiles
