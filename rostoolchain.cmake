@@ -11,11 +11,11 @@
 #
 set(CMAKE_SYSTEM_NAME Linux)
 set(DEVROOT $ENV{HOME}/robot)
-set(PIROOT ${DEVROOT}/rootfs)
-set(PITOOLS $ENV{HOME}/tools)
+set(PIROOT ${DEVROOT}/piroot)
+set(PITOOLS ${DEVROOT}/pitools)
 
-#set(TOOLROOT ${PITOOLS}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian)
-set(TOOLROOT ${PITOOLS}/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf)
+set(TOOLROOT ${PITOOLS}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64)
+#set(TOOLROOT ${PITOOLS}/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf)
 #set(TOOLROOT $ENV{HOME}/tools_test/tools/arm-bcm2708/gcc-linaro-4.9-2015.02-3-x86_64_arm-linux-gnueabihf)
 
 set(CMAKE_C_COMPILER ${TOOLROOT}/bin/arm-linux-gnueabihf-gcc)
