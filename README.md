@@ -1,8 +1,13 @@
 # robot
 
-# Build ros core libraries against arm
+# Build
 # cd ros_catkin_ws
+#
+# [For ARM Rasberry Pi3]
 # ./src/catkin/bin/catkin_make_isolated -DCMAKE_TOOLCHAIN_FILE=/home/kohei/robot/rostoolchain.cmake -DPYTHON_EXECUTABLE=/usr/bin/python -DENABLE_PRECOMPILED_HEADERS=OFF
+# 
+# [For X86]
+#./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
 
 
 
