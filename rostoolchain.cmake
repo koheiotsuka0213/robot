@@ -13,19 +13,39 @@ set(CMAKE_SYSTEM_NAME Linux)
 set(DEVROOT $ENV{HOME}/robot)
 set(PIROOT ${DEVROOT}/piroot)
 set(PITOOLS ${DEVROOT}/pitools)
+set(BOOSTROOT ${DEVROOT}/boost/boost_1_56_0)
+set(ROS_CATKIN_ROOT ${DEVROOT}/ros_catkin_ws)
+
+set(ROS_3rd_LIB_OPENCV_AVCODEC ${ROS_CATKIN_ROOT}/src/opencv2/3rdparty/lib/libavcodec.a)
+set(ROS_3rd_LIB_OPENCV_AVFORMAT ${ROS_CATKIN_ROOT}/src/opencv2/3rdparty/lib/libavformat.a)
+
+set(BOOST_LIB_FILE_SYSTEM ${BOOSTROOT}/stage/lib/libboost_filesystem.so.1.56.0)
 
 set(TOOLROOT ${PITOOLS}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64)
 #set(TOOLROOT ${PITOOLS}/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf)
-#set(TOOLROOT $ENV{HOME}/tools_test/tools/arm-bcm2708/gcc-linaro-4.9-2015.02-3-x86_64_arm-linux-gnueabihf)
+#set(TOOLROOT ${PITOOLS}/arm-bcm2708/gcc-linaro-4.9-3-linux-gnueabihf)
+#set(TOOLROOT /home/kohei/Downloads/gcc-linaro-5.4.1-2017.01-x86_64_arm-linux-gnueabihf)
 
 set(CMAKE_C_COMPILER ${TOOLROOT}/bin/arm-linux-gnueabihf-gcc)
 set(CMAKE_CXX_COMPILER ${TOOLROOT}/bin/arm-linux-gnueabihf-g++)
+#set(CMAKE_AR &{TOOLROOT}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-ar)
+#set(CMAKE_LINKER &{TOOLROOT}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-ld)
+
+SET(FLAGS "-Wl,-rpath-link,${PIROOT}/opt/vc/lib -Wl,-rpath-link,${PIROOT}/lib -Wl,-rpath-link,${PIROOT}/usr/lib -Wl,-rpath-link,${PIROOT}/usr/lib/arm-linux-gnueabihf -Wl,-rpath-link,${ROS_3rd_LIB_OPENCV_AVFORMAT} -Wl,-rpath-link,${BOOST_LIB_FILE_SYSTEM} -Wl,-rpath-link,${ROS_3rd_LIB_OPENCV_AVCODEC} -I${PIROOT}/usr/include --sysroot=${PIROOT}")
+
+UNSET(CMAKE_C_FLAGS CACHE)
+UNSET(CMAKE_CXX_FLAGS CACHE)
+
+SET(CMAKE_CXX_FLAGS ${FLAGS} CACHE STRING "" FORCE)
+SET(CMAKE_C_FLAGS ${FLAGS} CACHE STRING "" FORCE)
 
 set(CMAKE_SYSROOT ${PIROOT})
 set(CMAKE_FIND_ROOT_PATH ${PIROOT})
 
+#set(CMAKE_INCLUDE_PATH /home/kohei/robot/piroot/usr/include)
+#set(CMAKE_INCLUDE_PATH /home/kohei/robot/ros_catkin_ws/src/opencv2/3rdparty/include)
 # Have to set this one to BOTH, to allow CMake to find rospack
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM BOTH)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
