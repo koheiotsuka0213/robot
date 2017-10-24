@@ -2,24 +2,52 @@ cmake_minimum_required(VERSION 2.8.3)
 project(slam)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  std_msgs
-  message_generation
-)
+#set(CMAKE_SYSROOT "/home/kohei/robot/ras_ros/ros/kinetic/lib")
+#set(ROS_ROOT "/home/kohei/robot/ras_ros/ros/kinetic")
+#set (CMAKE_PREFIX_PATH=//home/kohei/robot/ras_ros/ros/kinetic)
+# find_package(catkin REQUIRED COMPONENTS
+#   roscpp
+#   rospy
+#   std_msgs
+#   message_generation
+# )
+
+find_package(roscpp)
+if(NOT roscpp_FOUND)
+  message(STATUS "Couldn't find roscpp, so not building ROS-specific functionality. Did you source the ROS setup.sh file?")
+else()
+  message(STATUS "Found roscpp installed at ${roscpp_DIR}, so building ROS-specific functionality.")
+endif()
+
+find_package(rospy)
+find_package(std_msgs)
+find_package(message_generation)
+
+set(Boost_NO_SYSTEM_PATHS TRUE) 
+if (Boost_NO_SYSTEM_PATHS)
+  set(BOOST_ROOT "/home/kohei/robot/tool/local/boost")
+  set(BOOST_INCLUDEDIR "${BOOST_ROOT}/include")
+  set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib")
+endif (Boost_NO_SYSTEM_PATHS)
+find_package(Boost 1.65.1)
+include_directories(${BOOST_INCLUDEDIR})
+
+include_directories("/home/kohei/robot/tool/log4cxx/usr/include")
+
+#link_directories("/home/kohei/robot/ras_ros/ros/kinetic/lib")
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
-## modules and global scripts declared therein get installed
+## modules and globREQUIRED regex date_time system filesystem thread graph program_optionsal scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 # catkin_python_setup()
 
@@ -101,12 +129,12 @@ find_package(catkin REQUIRED COMPONENTS
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
+#catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES slam
-  CATKIN_DEPENDS message_runtime roscpp rospy std_msgs
+#  LIBRARIES "/home/kohei/robot/ras_ros/ros/kinetic/lib"
+#  CATKIN_DEPENDS BOOST message_runtime roscpp rospy std_msgs
 #  DEPENDS system_lib
-)
+#)
 
 ###########
 ## Build ##
@@ -115,25 +143,39 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
+  # include
+ "/usr/arm-linux-gnueabihf/include"
+ ${roscp_INCLUDE_DIRS}
+ ${rospyn_INCLUDE_DIRS}
+ ${std_msgs_INCLUDE_DIRS}
+ ${message_generation_INCLUDE_DIRS}
+ 
 )
+MESSAGE( STATUS "catkin_LIBRARIES: " ${catkin_LIBRARIES} )
+MESSAGE( STATUS "BOOST_INCLUDEDIR: " ${BOOST_INCLUDEDIR} )
+MESSAGE( STATUS "BOOST_LIBRARYDIR: " ${BOOST_LIBRARYDIR} )
+MESSAGE( STATUS "ROS_BINDEPS_PATH: " ${ROS_BINDEPS_PATH} )
+MESSAGE( STATUS "ROS_ROOT: " ${ROS_ROOT} )
+MESSAGE( STATUS "ROS_PACKAGE_PATH: " ${ROS_PACKAGE_PATH} )
+MESSAGE( STATUS "roscpp_INCLUDEDIR: " ${roscpp_INCLUDE_DIRS} )
+MESSAGE( STATUS "roscpp_LIBRARYDIR: " ${roscpp_LIBRARY_DIRS} )
+MESSAGE( STATUS "roscpp_LIBRARIES: " ${roscpp_LIBRARIES} )
 
-add_executable(talker src/talker.cpp)
-target_link_libraries(talker ${catkin_LIBRARIES})
-add_dependencies(talker slam_generate_messages_cpp)
+# add_executable(talker src/talker.cpp)
+# target_link_libraries(talker ${catkin_LIBRARIES})
+# add_dependencies(talker slam_generate_messages_cpp)
 
 add_executable(listener src/listener.cpp)
-target_link_libraries(listener ${catkin_LIBRARIES})
+target_link_libraries(listener ${roscpp_LIBRARIES} ${rospy_LIBRARIES} ${std_msgs_LIBRARIES} ${message_generation_LIBRARIES})
 add_dependencies(listener slam_generate_messages_cpp)
 
-add_executable(add_two_ints_server src/add_two_ints_server.cpp)
-target_link_libraries(add_two_ints_server ${catkin_LIBRARIES})
-add_dependencies(add_two_ints_server slam_gencpp)
+# add_executable(add_two_ints_server src/add_two_ints_server.cpp)
+# target_link_libraries(add_two_ints_server ${catkin_LIBRARIES})
+# add_dependencies(add_two_ints_server slam_gencpp)
 
-add_executable(add_two_ints_client src/add_two_ints_client.cpp)
-target_link_libraries(add_two_ints_client ${catkin_LIBRARIES})
-add_dependencies(add_two_ints_client slam_gencpp)
+# add_executable(add_two_ints_client src/add_two_ints_client.cpp)
+# target_link_libraries(add_two_ints_client ${catkin_LIBRARIES})
+# add_dependencies(add_two_ints_client slam_gencpp)
 
 
 ## Declare a C++ library
