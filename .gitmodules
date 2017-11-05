@@ -13,3 +13,9 @@
 [submodule "ros_catkin_ws/src/actionlib"]
 	path = ros_catkin_ws/src/actionlib
 	url = https://github.com/ros/actionlib.git
+[submodule "ros_catkin_ws/src/geometry"]
+	path = ros_catkin_ws/src/geometry
+	url = https://github.com/ros/geometry.git
+[submodule "ros_catkin_ws/src/geometry2"]
+	path = ros_catkin_ws/src/geometry2
+	url = https://github.com/ros/geometry2.git
