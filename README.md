@@ -15,7 +15,7 @@
 # 1. ROS
 # http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Kinetic%20on%20the%20Raspberry%20Pi
 
-# 2. copy set.sh to target
+# 2. copy devel_isolated, src, set.sh to target /home/kohei/robot/ros_catkin_ws/.
 # 3. source set.sh
 # 4. Copy dependent missing library if needed to /home/kohei/robot/addLibs/.
 # 5. Copy data if needed.
