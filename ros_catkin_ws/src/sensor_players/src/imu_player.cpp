@@ -89,6 +89,11 @@ int getIMU(std::string filename, sensor_msgs::Imu *ros_msgImu, std_msgs::Header 
 
 int main(int argc, char **argv)
 {
+  if (argc < 2)
+  {
+        ROS_ERROR_STREAM("Too less arguments..");
+  }
+
   static const int imuDataCharNumsPerLine = 30;
 
   ros::init(argc, argv, "imu_player");
@@ -97,9 +102,9 @@ int main(int argc, char **argv)
 
   ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("sensor/imu", 1, true);
 
-  std::string imuDataPath;
+  std::string imuDataPath(argv[1]);
   std::string imuDataFile;
-  std::string imuTimeStampFile;
+  std::string imuTimeStampFile(argv[2]);
   std::ifstream timeStamps(imuTimeStampFile.c_str());
   std_msgs::Header timeHeader;
   std::string readTimeStampLine;
@@ -127,7 +132,7 @@ int main(int argc, char **argv)
   }
   closedir (dir);
 
-  while(currentEntry < totalEntries)
+  while(1)
   {
     timeStamps.seekg(imuDataCharNumsPerLine * currentEntry);
     getline(timeStamps, readTimeStampLine);
@@ -142,7 +147,11 @@ int main(int argc, char **argv)
 
     imu_pub.publish(imuRosMsg);
     currentEntry++;
-  }  
+    if (currentEntry >= totalEntries)
+    {
+      currentEntry = 0;
+    }
+  }
 
   return 0;
 }
