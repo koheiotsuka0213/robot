@@ -16,8 +16,8 @@ set(PITOOLS ${DEVROOT}/pitools)
 set(BOOSTROOT ${DEVROOT}/boost/boost_1_56_0)
 set(ROS_CATKIN_ROOT ${DEVROOT}/ros_catkin_ws)
 
-set(ROS_3rd_LIB_OPENCV_AVCODEC ${ROS_CATKIN_ROOT}/src/opencv2/3rdparty/lib/libavcodec.a)
-set(ROS_3rd_LIB_OPENCV_AVFORMAT ${ROS_CATKIN_ROOT}/src/opencv2/3rdparty/lib/libavformat.a)
+#set(ROS_3rd_LIB_OPENCV_AVCODEC ${ROS_CATKIN_ROOT}/src/opencv2/3rdparty/lib/libavcodec.a)
+#set(ROS_3rd_LIB_OPENCV_AVFORMAT ${ROS_CATKIN_ROOT}/src/opencv2/3rdparty/lib/libavformat.a)
 
 set(BOOST_LIB_FILE_SYSTEM ${BOOSTROOT}/stage/lib/libboost_filesystem.so.1.56.0)
 
@@ -31,7 +31,10 @@ set(CMAKE_CXX_COMPILER ${TOOLROOT}/bin/arm-linux-gnueabihf-g++)
 #set(CMAKE_AR &{TOOLROOT}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-ar)
 #set(CMAKE_LINKER &{TOOLROOT}/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-ld)
 
-SET(FLAGS "-Wl,-rpath-link,${PIROOT}/opt/vc/lib -Wl,-rpath-link,${PIROOT}/lib -Wl,-rpath-link,${PIROOT}/usr/lib -Wl,-rpath-link,${PIROOT}/usr/lib/arm-linux-gnueabihf -Wl,-rpath-link,${ROS_3rd_LIB_OPENCV_AVFORMAT} -Wl,-rpath-link,${BOOST_LIB_FILE_SYSTEM} -Wl,-rpath-link,${ROS_3rd_LIB_OPENCV_AVCODEC} -I${PIROOT}/usr/include --sysroot=${PIROOT}")
+SET(FLAGS "-Wl,-rpath-link,${PIROOT}/opt/vc/lib -Wl,-rpath-link,${PIROOT}/lib -Wl,-rpath-link,${PIROOT}/usr/lib -Wl,-rpath-link,${PIROOT}/usr/lib/arm-linux-gnueabihf -Wl,-rpath-link,${BOOST_LIB_FILE_SYSTEM} -I${PIROOT}/usr/include --sysroot=${PIROOT}")
+
+#SET(FLAGS "-Wl,-rpath-link,${PIROOT}/opt/vc/lib -Wl,-rpath-link,${PIROOT}/lib -Wl,-rpath-link,${PIROOT}/usr/lib -Wl,-rpath-link,${PIROOT}/usr/lib/arm-linux-gnueabihf -Wl,-rpath-link,${ROS_3rd_LIB_OPENCV_AVFORMAT} -Wl,-rpath-link,${BOOST_LIB_FILE_SYSTEM} -Wl,-rpath-link,${ROS_3rd_LIB_OPENCV_AVCODEC} -I${PIROOT}/usr/include --sysroot=${PIROOT}")
+
 
 UNSET(CMAKE_C_FLAGS CACHE)
 UNSET(CMAKE_CXX_FLAGS CACHE)
