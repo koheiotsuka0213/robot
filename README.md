@@ -1,13 +1,21 @@
 # robot
 
 # Build
+#
+# [Common for X86/ARM]
+# Build OpenCV
+# 
+#
 # cd ros_catkin_ws
 #
 # [For ARM Rasberry Pi3]
 # ./src/catkin/bin/catkin_make_isolated -DCMAKE_TOOLCHAIN_FILE=/home/kohei/robot/rostoolchain.cmake -DPYTHON_EXECUTABLE=/usr/bin/python -DENABLE_PRECOMPILED_HEADERS=OFF -DCATKIN_ENABLE_TESTING=OFF
 # 
 # [For X86]
-#./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
+# 1) OpenCV
+# 1.1) cmake ../ros_catkin_ws/src/opencv/ -DCMAKE_BUILD_TYPE=RELEASE @/home/kohei/robot/opencv
+# 1.2) make
+#./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR=/home/kohei/robot/opencv
 
 
 
