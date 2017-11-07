@@ -18,8 +18,9 @@
 # 1.2) make
 #
 # 2) ROS pkg (original/custom)
-#./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR=/home/kohei/robot/opencv/ -DQt5_DIR=/home/kohei/robot/Qt5.6.3/5.6.3/gcc_64/lib/cmake/Qt5/
-
+#./src/catkin/bin/catkin_make_isolated -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR=/home/kohei/robot/opencv/ -DQt5_DIR=/home/kohei/robot/Qt5.6.3/5.6.3/gcc_64/lib/cmake/Qt5/
+# 2.1) rviz (only x86) Before run rviz(Temporary fix).
+# sudo ln -s /home/kohei/robot/Qt5.6.3/5.6.3/gcc_64/plugins/platforms/ /home/kohei/robot/ros_catkin_ws/devel_isolated/rviz/lib/rviz/platforms
 
 
 # Rasberry Pi3 set up
