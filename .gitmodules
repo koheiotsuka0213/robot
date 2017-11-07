@@ -25,3 +25,6 @@
 [submodule "ros_catkin_ws/src/opencv"]
 	path = ros_catkin_ws/src/opencv
 	url = https://github.com/opencv/opencv.git
+[submodule "ros_catkin_ws/src/rviz"]
+	path = ros_catkin_ws/src/rviz
+	url = https://github.com/ros-visualization/rviz.git
