@@ -19,3 +19,39 @@
 [submodule "ros_catkin_ws/src/geometry2"]
 	path = ros_catkin_ws/src/geometry2
 	url = https://github.com/ros/geometry2.git
+[submodule "ros_catkin_ws/src/vision_opencv"]
+	path = ros_catkin_ws/src/vision_opencv
+	url = https://github.com/ros-perception/vision_opencv.git
+[submodule "ros_catkin_ws/src/opencv"]
+	path = ros_catkin_ws/src/opencv
+	url = https://github.com/opencv/opencv.git
+[submodule "ros_catkin_ws/src/rviz"]
+	path = ros_catkin_ws/src/rviz
+	url = https://github.com/ros-visualization/rviz.git
+[submodule "ros_catkin_ws/src/image_common"]
+	path = ros_catkin_ws/src/image_common
+	url = https://github.com/ros-perception/image_common.git
+[submodule "ros_catkin_ws/src/pluginlib"]
+	path = ros_catkin_ws/src/pluginlib
+	url = https://github.com/ros/pluginlib.git
+[submodule "ros_catkin_ws/src/class_loader"]
+	path = ros_catkin_ws/src/class_loader
+	url = https://github.com/ros/class_loader.git
+[submodule "ros_catkin_ws/src/interactive_markers"]
+	path = ros_catkin_ws/src/interactive_markers
+	url = https://github.com/ros-visualization/interactive_markers.git
+[submodule "ros_catkin_ws/src/laser_geometry"]
+	path = ros_catkin_ws/src/laser_geometry
+	url = https://github.com/ros-perception/laser_geometry.git
+[submodule "ros_catkin_ws/src/navigation_msgs"]
+	path = ros_catkin_ws/src/navigation_msgs
+	url = https://github.com/ros-planning/navigation_msgs.git
+[submodule "ros_catkin_ws/src/python_qt_binding"]
+	path = ros_catkin_ws/src/python_qt_binding
+	url = https://github.com/ros-visualization/python_qt_binding.git
+[submodule "ros_catkin_ws/src/robot_model"]
+	path = ros_catkin_ws/src/robot_model
+	url = https://github.com/ros/robot_model.git
+[submodule "ros_catkin_ws/src/rosconsole_bridge"]
+	path = ros_catkin_ws/src/rosconsole_bridge
+	url = https://github.com/ros/rosconsole_bridge.git
