@@ -28,3 +28,6 @@
 [submodule "ros_catkin_ws/src/rviz"]
 	path = ros_catkin_ws/src/rviz
 	url = https://github.com/ros-visualization/rviz.git
+[submodule "ros_catkin_ws/src/image_common"]
+	path = ros_catkin_ws/src/image_common
+	url = https://github.com/ros-perception/image_common.git

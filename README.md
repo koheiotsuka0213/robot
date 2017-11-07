@@ -18,7 +18,7 @@
 # 1.2) make
 #
 # 2) ROS pkg (original/custom)
-#./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR=/home/kohei/robot/opencv
+#./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR=/home/kohei/robot/opencv/ -DQt5_DIR=/home/kohei/robot/Qt5.6.3/5.6.3/gcc_64/lib/cmake/Qt5/
 
 
 
