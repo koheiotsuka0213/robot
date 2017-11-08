@@ -3,7 +3,7 @@ project(roslib)
 find_package(catkin REQUIRED COMPONENTS rospack)
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES roslib
+  LIBRARIES roslib rospack
   CFG_EXTRAS roslib-extras.cmake)
 
 find_package(Boost REQUIRED COMPONENTS thread)
