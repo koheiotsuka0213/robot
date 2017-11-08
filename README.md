@@ -10,7 +10,7 @@
 # 1.2) make
 #
 # 2) ROS pkg (original/custom)
-# ./src/catkin/bin/catkin_make_isolated -DCMAKE_TOOLCHAIN_FILE=/home/kohei/robot/rostoolchain.cmake -DPYTHON_EXECUTABLE=/usr/bin/python -DENABLE_PRECOMPILED_HEADERS=OFF -DCATKIN_ENABLE_TESTING=OFF -DOpenCV_DIR=/home/kohei/robot/opencv_raspi
+# touch src/rviz/CATKIN_IGNORE && ./src/catkin/bin/catkin_make_isolated -DCMAKE_TOOLCHAIN_FILE=/home/kohei/robot/rostoolchain.cmake -DPYTHON_EXECUTABLE=/usr/bin/python -DENABLE_PRECOMPILED_HEADERS=OFF -DCATKIN_ENABLE_TESTING=OFF -DOpenCV_DIR=/home/kohei/robot/opencv_raspi
 # 
 # [For X86]
 # 1) OpenCV
@@ -18,7 +18,7 @@
 # 1.2) make
 #
 # 2) ROS pkg (original/custom)
-#./src/catkin/bin/catkin_make_isolated -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR=/home/kohei/robot/opencv/ -DQt5_DIR=/home/kohei/robot/Qt5.6.3/5.6.3/gcc_64/lib/cmake/Qt5/
+# rm ./src/rviz/CATKIN_IGNORE && ./src/catkin/bin/catkin_make_isolated -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR=/home/kohei/robot/opencv/ -DQt5_DIR=/home/kohei/robot/Qt5.6.3/5.6.3/gcc_64/lib/cmake/Qt5/
 # 2.1) rviz (only x86) Before run rviz(Temporary fix).
 # sudo ln -s /home/kohei/robot/Qt5.6.3/5.6.3/gcc_64/plugins/platforms/ /home/kohei/robot/ros_catkin_ws/devel_isolated/rviz/lib/rviz/platforms
 
