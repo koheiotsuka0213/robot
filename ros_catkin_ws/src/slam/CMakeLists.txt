@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   geodesy
   geographic_msgs
+  visualization_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -78,6 +79,7 @@ find_package(catkin REQUIRED COMPONENTS
    sensor_msgs
    geometry_msgs
    geographic_msgs
+   visualization_msgs
  )
 
 ################################################
@@ -137,6 +139,10 @@ add_dependencies(add_two_ints_client slam_gencpp)
 add_executable(dead_reckoning src/dead_reckoning.cpp)
 target_link_libraries(dead_reckoning ${catkin_LIBRARIES})
 add_dependencies(dead_reckoning slam_gencpp tf)
+
+add_executable(dead_reckoning_support src/dead_reckoning_support.cpp)
+target_link_libraries(dead_reckoning_support ${catkin_LIBRARIES})
+add_dependencies(dead_reckoning_support slam_gencpp tf)
 
 ###########
 ## Build ##

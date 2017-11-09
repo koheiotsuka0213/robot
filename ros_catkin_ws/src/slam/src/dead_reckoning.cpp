@@ -13,7 +13,7 @@
 #include <tf/transform_broadcaster.h>
 #include <geodesy/utm.h>
 
-ros::Publisher deadReckoingResultPublisher;
+ros::Publisher deadReckoingResultPub;
 bool isFirstPoint = true;
 geodesy::UTMPoint utmFrameOffset;
 void onGPSFixReceived(const sensor_msgs::NavSatFix::ConstPtr& msg)
@@ -47,7 +47,7 @@ void onGPSFixReceived(const sensor_msgs::NavSatFix::ConstPtr& msg)
 
   ROS_INFO("DR Result x:%f, y:%f, z:%f", poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z);
 
-  deadReckoingResultPublisher.publish(poseStamped);
+  deadReckoingResultPub.publish(poseStamped);
 }
 
 int main(int argc, char **argv)
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 
   ros::Subscriber GPSNavSatFix_sub = n.subscribe("/kitti/oxts/gps/fix", 1000, onGPSFixReceived);
 
-  deadReckoingResultPublisher = n.advertise<geometry_msgs::PoseStamped>("deadReckoingResult", 1000);
+  deadReckoingResultPub = n.advertise<geometry_msgs::PoseStamped>("deadReckoingResult", 1000);
 
   ros::spin();
 
