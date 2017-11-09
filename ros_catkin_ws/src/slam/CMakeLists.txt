@@ -12,6 +12,11 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
+  sensor_msgs
+  geometry_msgs
+  tf
+  geodesy
+  geographic_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -70,6 +75,9 @@ find_package(catkin REQUIRED COMPONENTS
  generate_messages(
    DEPENDENCIES
    std_msgs
+   sensor_msgs
+   geometry_msgs
+   geographic_msgs
  )
 
 ################################################
@@ -125,6 +133,10 @@ add_dependencies(add_two_ints_server slam_gencpp)
 add_executable(add_two_ints_client src/add_two_ints_client.cpp)
 target_link_libraries(add_two_ints_client ${catkin_LIBRARIES})
 add_dependencies(add_two_ints_client slam_gencpp)
+
+add_executable(dead_reckoning src/dead_reckoning.cpp)
+target_link_libraries(dead_reckoning ${catkin_LIBRARIES})
+add_dependencies(dead_reckoning slam_gencpp tf)
 
 ###########
 ## Build ##

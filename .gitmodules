@@ -55,3 +55,9 @@
 [submodule "ros_catkin_ws/src/rosconsole_bridge"]
 	path = ros_catkin_ws/src/rosconsole_bridge
 	url = https://github.com/ros/rosconsole_bridge.git
+[submodule "ros_catkin_ws/src/geographic_info"]
+	path = ros_catkin_ws/src/geographic_info
+	url = https://github.com/ros-geographic-info/geographic_info.git
+[submodule "ros_catkin_ws/src/unique_identifier"]
+	path = ros_catkin_ws/src/unique_identifier
+	url = https://github.com/ros-geographic-info/unique_identifier.git
