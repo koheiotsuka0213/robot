@@ -72,8 +72,8 @@ void ondeadReckoingResultReceived(const geometry_msgs::PoseStamped::ConstPtr& ms
   line_list.points.push_back(p);
 
   DRTrajPub.publish(points);
-  DRTrajPub.publish(line_strip);
-  DRTrajPub.publish(line_list);
+  // DRTrajPub.publish(line_strip);
+  // DRTrajPub.publish(line_list);
 }
 
 int main(int argc, char **argv)
