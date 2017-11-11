@@ -76,3 +76,6 @@
 [submodule "ros_catkin_ws/src/dynamic_reconfigure"]
 	path = ros_catkin_ws/src/dynamic_reconfigure
 	url = https://github.com/ros/dynamic_reconfigure.git
+[submodule "ros_catkin_ws/src/bond_core"]
+	path = ros_catkin_ws/src/bond_core
+	url = https://github.com/ros/bond_core.git
