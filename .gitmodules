@@ -61,3 +61,21 @@
 [submodule "ros_catkin_ws/src/unique_identifier"]
 	path = ros_catkin_ws/src/unique_identifier
 	url = https://github.com/ros-geographic-info/unique_identifier.git
+[submodule "ros_catkin_ws/src/rqt_plot"]
+	path = ros_catkin_ws/src/rqt_plot
+	url = https://github.com/ros-visualization/rqt_plot.git
+[submodule "ros_catkin_ws/src/rqt"]
+	path = ros_catkin_ws/src/rqt
+	url = https://github.com/ros-visualization/rqt.git
+[submodule "ros_catkin_ws/src/qt_gui_core"]
+	path = ros_catkin_ws/src/qt_gui_core
+	url = https://github.com/ros-visualization/qt_gui_core.git
+[submodule "ros_catkin_ws/src/nodelet_core"]
+	path = ros_catkin_ws/src/nodelet_core
+	url = https://github.com/ros/nodelet_core.git
+[submodule "ros_catkin_ws/src/dynamic_reconfigure"]
+	path = ros_catkin_ws/src/dynamic_reconfigure
+	url = https://github.com/ros/dynamic_reconfigure.git
+[submodule "ros_catkin_ws/src/bond_core"]
+	path = ros_catkin_ws/src/bond_core
+	url = https://github.com/ros/bond_core.git

@@ -20,6 +20,8 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
 )
 
+find_package( Eigen3 REQUIRED)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -137,12 +139,19 @@ target_link_libraries(add_two_ints_client ${catkin_LIBRARIES})
 add_dependencies(add_two_ints_client slam_gencpp)
 
 add_executable(dead_reckoning src/dead_reckoning.cpp)
-target_link_libraries(dead_reckoning ${catkin_LIBRARIES})
-add_dependencies(dead_reckoning slam_gencpp tf)
+target_link_libraries(dead_reckoning ${catkin_LIBRARIES} KalmanFilter)
+target_include_directories(dead_reckoning PUBLIC include PUBLIC ${EIGEN3_INCLUDE_DIR})
+add_dependencies(dead_reckoning slam_gencpp tf KalmanFilter EIGEN3)
 
 add_executable(dead_reckoning_support src/dead_reckoning_support.cpp)
-target_link_libraries(dead_reckoning_support ${catkin_LIBRARIES})
-add_dependencies(dead_reckoning_support slam_gencpp tf)
+target_link_libraries(dead_reckoning_support ${catkin_LIBRARIES} KalmanFilter)
+target_include_directories(dead_reckoning_support PUBLIC include PUBLIC ${EIGEN3_INCLUDE_DIR})
+add_dependencies(dead_reckoning_support slam_gencpp tf KalmanFilter EIGEN3)
+
+add_library(KalmanFilter SHARED
+			src/KalmanFilter.cpp
+			)
+target_include_directories(KalmanFilter PUBLIC include PRIVATE ${EIGEN3_INCLUDE_DIR})
 
 ###########
 ## Build ##

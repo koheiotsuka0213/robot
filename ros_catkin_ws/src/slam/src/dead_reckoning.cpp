@@ -12,10 +12,13 @@
 #include "geographic_msgs/GeoPoint.h"
 #include <tf/transform_broadcaster.h>
 #include <geodesy/utm.h>
+#include "slam/KalmanFilter.hpp"
 
+ros::Publisher rawPositioningResultPub;
 ros::Publisher deadReckoingResultPub;
 bool isFirstPoint = true;
 geodesy::UTMPoint utmFrameOffset;
+KalmanFilter kf;
 void onGPSFixReceived(const sensor_msgs::NavSatFix::ConstPtr& msg)
 {
   ROS_INFO("Received GPS data lat:%f, long:%f, alt:%f", msg->latitude, msg->longitude, msg->altitude);
@@ -45,9 +48,94 @@ void onGPSFixReceived(const sensor_msgs::NavSatFix::ConstPtr& msg)
   poseStamped.pose.position.y = utm_pt.northing - utmFrameOffset.northing;
   poseStamped.pose.position.z = utm_pt.altitude - utmFrameOffset.altitude;
 
-  ROS_INFO("DR Result x:%f, y:%f, z:%f", poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z);
+  ROS_INFO("Raw Pose x:%f, y:%f, z:%f", poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z);
+  rawPositioningResultPub.publish(poseStamped);
 
-  deadReckoingResultPub.publish(poseStamped);
+  Eigen::VectorXd Y(9);
+  double dt = 0.01;
+  Y <<  poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z,
+      kf.state()(3), kf.state()(4), kf.state()(5), kf.state()(6), kf.state()(7), kf.state()(8);
+  ROS_INFO("x:%f, y:%f, z:%f, vx:%f, vy:%f, vz:%f, ax:%f, ay:%f, az:%f",
+      kf.state()(0), kf.state()(1), kf.state()(2), kf.state()(3), kf.state()(4), kf.state()(5), kf.state()(6)
+      , kf.state()(7), kf.state()(8));
+  kf.measurementUpdate(Y, dt);
+}
+
+KalmanFilter getKalmanFilterInstance()
+{
+  double dt = 0.005;
+
+  /* Create a Kalman filter with the specified matrices.
+   *   A - System dynamics matrix
+   *   C - Output matrix
+   *   Q - Process noise covariance
+   *   R - Measurement noise covariance
+   *   P - Estimate error covariance
+   */
+
+  Eigen::MatrixXd A(9, 9);
+ A << 1.0, 0.0, 0.0, dt, 0.0, 0.0, 1/2.0*dt*dt, 0.0, 0.0,
+      0.0, 1.0, 0.0, 0.0,  dt, 0.0, 0.0, 1/2.0*dt*dt, 0.0,
+      0.0, 0.0, 1.0, 0.0, 0.0,  dt, 0.0, 0.0, 1/2.0*dt*dt,
+      0.0, 0.0, 0.0, 1.0, 0.0, 0.0,  dt, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,  dt, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,  dt,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0;
+
+  Eigen::MatrixXd C(9, 9);
+  C << 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+       0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+       0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+       0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0;
+
+  Eigen::MatrixXd Q(9, 9);
+ Q << 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0;
+
+
+  Eigen::MatrixXd R(9, 9);
+  R << 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+       0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+       0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+       0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0;
+
+  Eigen::MatrixXd P(9, 9);
+  Eigen::MatrixXd G(9, 1);
+  G << 1/2.0*dt*dt, 1/2.0*dt*dt, 1/2.0*dt*dt, dt, dt, dt, 1.0, 1.0, 1.0;
+  double accProcessNoise = 0.1;
+  P = G * G.transpose() * accProcessNoise * accProcessNoise;
+  KalmanFilter kf(dt,
+                   A,
+                   C,
+                   Q,
+                   R,
+                   P);
+  ROS_INFO("P size row:%d col:%d", P.rows(), P.cols());
+
+  Eigen::VectorXd x0(9);
+  x0 << 0, 0, 0, 0, 0, 0, 0, 0, 0;
+  kf.init(0, x0);
+
+  return kf;
 }
 
 int main(int argc, char **argv)
@@ -59,9 +147,28 @@ int main(int argc, char **argv)
 
   ros::Subscriber GPSNavSatFix_sub = n.subscribe("/kitti/oxts/gps/fix", 1000, onGPSFixReceived);
 
+  rawPositioningResultPub = n.advertise<geometry_msgs::PoseStamped>("rawPositioningResult", 1000);
   deadReckoingResultPub = n.advertise<geometry_msgs::PoseStamped>("deadReckoingResult", 1000);
 
-  ros::spin();
+  //ros::spin();
+  ros::AsyncSpinner spinner(2);
+  spinner.start();
+
+  kf = getKalmanFilterInstance();
+  ros::Rate r(200); // 200 hz
+  double dt = 0.005;
+  while(ros::ok())
+  {
+      kf.predictionUpdate(kf.getA(), dt);
+      geometry_msgs::PoseStamped poseStamped;
+      poseStamped.header.frame_id = "world";
+      poseStamped.pose.position.x = kf.state()(0);
+      poseStamped.pose.position.y = kf.state()(1);
+      poseStamped.pose.position.z = kf.state()(2);
+     // ROS_INFO("DR Result x:%f, y:%f, z:%f", poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z);
+      deadReckoingResultPub.publish(poseStamped);
+      r.sleep();
+  }
 
   return 0;
 }
