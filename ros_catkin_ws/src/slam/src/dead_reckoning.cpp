@@ -14,6 +14,7 @@
 #include <geodesy/utm.h>
 #include "slam/KalmanFilter.hpp"
 
+namespace slam {
 ros::Publisher rawPositioningResultPub;
 ros::Publisher deadReckoingResultPub;
 bool isFirstPoint = true;
@@ -140,16 +141,6 @@ KalmanFilter getKalmanFilterInstance()
 
 void updateSystemDynamicsMxWIthdt(Eigen::MatrixXd& A, double dt)
 {
-  A << 1.0, 0.0, 0.0, dt, 0.0, 0.0, 1/2.0*dt*dt, 0.0, 0.0,
-       0.0, 1.0, 0.0, 0.0,  dt, 0.0, 0.0, 1/2.0*dt*dt, 0.0,
-       0.0, 0.0, 1.0, 0.0, 0.0,  dt, 0.0, 0.0, 1/2.0*dt*dt,
-       0.0, 0.0, 0.0, 1.0, 0.0, 0.0,  dt, 0.0, 0.0,
-       0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,  dt, 0.0,
-       0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,  dt,
-       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
-       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0;
-
   A(0, 3) = dt;
   A(0, 6) = 1/2.0*dt*dt;
   A(1, 4) = dt;
