@@ -14,7 +14,6 @@
 #include <geodesy/utm.h>
 #include "slam/PoseEstimation.hpp"
 
-ros::Publisher rawPositioningResultPub;
 ros::Publisher deadReckoingResultPub;
 
 
@@ -31,7 +30,6 @@ int main(int argc, char **argv)
 
   ros::Subscriber GPSNavSatFix_sub = n.subscribe("/kitti/oxts/gps/fix", 1000, &PoseEstimation::onGPSFixReceived, &poseEstimation);
 
-  rawPositioningResultPub = n.advertise<geometry_msgs::PoseStamped>("rawPositioningResult", 1000);
   deadReckoingResultPub = n.advertise<geometry_msgs::PoseStamped>("deadReckoingResult", 1000);
 
   ros::AsyncSpinner spinner(2);

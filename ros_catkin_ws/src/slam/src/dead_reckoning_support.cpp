@@ -23,7 +23,7 @@
 
 ros::Publisher DRTrajRawPub;
 ros::Publisher DRTrajPub;
-
+geodesy::UTMPoint OffsetUTMPoint;
 void ondeadReckoingResultReceived(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
   static visualization_msgs::Marker points, line_strip, line_list;
@@ -78,8 +78,28 @@ void ondeadReckoingResultReceived(const geometry_msgs::PoseStamped::ConstPtr& ms
   // DRTrajPub.publish(line_list);
 }
 
-void onrawPositioningResultReceived(const geometry_msgs::PoseStamped::ConstPtr& msg)
+void onrawPositioningResultReceived(const sensor_msgs::NavSatFix::ConstPtr& msg)
 {
+
+  geographic_msgs::GeoPoint geo_pt;
+  geo_pt.latitude = msg->latitude;
+  geo_pt.longitude = msg->longitude;
+  geo_pt.altitude = msg->altitude;
+  geodesy::UTMPoint UTMPt(geo_pt);
+
+  if (OffsetUTMPoint.zone == 0)
+  {
+    OffsetUTMPoint = UTMPt;
+  }
+
+  geometry_msgs::PoseStamped poseStamped;
+  poseStamped.header.frame_id = "world";
+  poseStamped.pose.position.x = UTMPt.easting - OffsetUTMPoint.easting;
+  poseStamped.pose.position.y = UTMPt.northing - OffsetUTMPoint.northing;
+  poseStamped.pose.position.z = UTMPt.altitude - OffsetUTMPoint.altitude;
+
+
+
   static visualization_msgs::Marker points, line_strip, line_list;
   points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = "world";
   points.header.stamp = line_strip.header.stamp = line_list.header.stamp = ros::Time::now();
@@ -115,9 +135,9 @@ void onrawPositioningResultReceived(const geometry_msgs::PoseStamped::ConstPtr& 
   line_list.color.a = 1.0;
 
   geometry_msgs::Point p;
-  p.x = msg->pose.position.x;
-  p.y = msg->pose.position.y;
-  p.z = msg->pose.position.z;
+  p.x = poseStamped.pose.position.x;
+  p.y = poseStamped.pose.position.y;
+  p.z = poseStamped.pose.position.z;
 
   points.points.push_back(p);
   line_strip.points.push_back(p);
@@ -138,7 +158,7 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
 
   ros::Subscriber deadReckoningResultSub = n.subscribe("deadReckoingResult", 1000, ondeadReckoingResultReceived);
-  ros::Subscriber rawPositioningResultSub = n.subscribe("rawPositioningResult", 1000, onrawPositioningResultReceived);
+  ros::Subscriber GPSNavSatFix_sub = n.subscribe("/kitti/oxts/gps/fix", 1000, onrawPositioningResultReceived);
   DRTrajRawPub = n.advertise<visualization_msgs::Marker>("DRTrajRaw", 1000);
   DRTrajPub = n.advertise<visualization_msgs::Marker>("DRTraj", 1000);
 
