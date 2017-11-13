@@ -34,8 +34,8 @@
     pthread_create(&mPredictionUpdateThrd, 0, predictionUpdateThreadFunc, this);
     setDefaultKalmanModel();
 
-    pthread_mutex_init(&mGPSUTMData_mtx, 0);
-    pthread_cond_init(&mGPSUTMData_cond, 0);
+    pthread_mutex_init(&mMeasurementUpdate_mtx, 0);
+    pthread_cond_init(&mMeasurementUpdate_cond, 0);
     pthread_create(&mSensorMeasurementUpdateThrd, 0, measurementUpdateThreadFunc, this);
   }
 
@@ -67,16 +67,35 @@
    poseStamped.pose.position.z = UTMPt.altitude - mOffsetUTMPoint.altitude;
    ROS_INFO("Raw Pose x:%f, y:%f, z:%f", poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z);
 
+
+
    pthread_mutex_lock(&mGPSUTMData_mtx);
    mGPSUTMData.push_back(poseStamped);
-   ROS_INFO("Notifying measurementUpdateThread of new data..");
-   pthread_cond_signal(&mGPSUTMData_cond);
    pthread_mutex_unlock(&mGPSUTMData_mtx);
+
+   pthread_mutex_lock(&mMeasurementUpdate_mtx);
+   ROS_INFO("Notifying measurementUpdateThread of new data..");
+   pthread_cond_signal(&mMeasurementUpdate_cond);
+   pthread_mutex_unlock(&mMeasurementUpdate_mtx);
+
  }
 
  void PoseEstimation::onGPSTwistReceived(const geometry_msgs::TwistStamped::ConstPtr& msg)
  {
-   ROS_INFO("Received GPS Twist data linear_x:%f, linear_y:%f, linear_z:%f", msg->twist.linear.x, msg->twist.linear.y, msg->twist.linear.z);
+   ROS_INFO("Received GPS Twist data linear_x:%f, linear_y:%f, linear_z:%f", -1 * msg->twist.linear.x, 100 * msg->twist.linear.y, msg->twist.linear.z);
+   geometry_msgs::TwistStamped GPSTwistStamped;
+   GPSTwistStamped.twist.linear.x = -1 * msg->twist.linear.x;
+   GPSTwistStamped.twist.linear.y =  100 * msg->twist.linear.y;
+   GPSTwistStamped.twist.linear.z =  msg->twist.linear.z;
+
+   pthread_mutex_lock(&mGPSTwistData_mtx);
+   mGPSTwistData.push_back(GPSTwistStamped);
+   ROS_INFO("Notifying measurementUpdateThread of new data..");
+   pthread_mutex_unlock(&mGPSTwistData_mtx);
+
+   pthread_mutex_lock(&mMeasurementUpdate_mtx);
+   pthread_cond_signal(&mMeasurementUpdate_cond);
+   pthread_mutex_unlock(&mMeasurementUpdate_mtx);
  }
 
  void PoseEstimation::measurementUpdateThreadEntry()
@@ -85,10 +104,16 @@
 
    while (ros::ok())
    {
-       pthread_mutex_lock(&mGPSUTMData_mtx);
+       pthread_mutex_lock(&mMeasurementUpdate_mtx);
+
        ROS_INFO("measurementUpdateThread Waiting for new data....");
-       pthread_cond_wait(&mGPSUTMData_cond, &mGPSUTMData_mtx);
-       size_t queueSize = mGPSUTMData.size();
+       pthread_cond_wait(&mMeasurementUpdate_cond, &mMeasurementUpdate_mtx);
+
+       size_t queueSize = 0;
+       pthread_mutex_lock(&mGPSUTMData_mtx);
+       queueSize = mGPSUTMData.size();
+
+       pthread_mutex_lock(&mPoseFilter_mtx);
        for (size_t i = 0; i < queueSize; i++)
        {
          ROS_INFO("Using data #%d of mGPSUTMDataSize:%d", static_cast<int>(i), static_cast<int>(queueSize));
@@ -97,12 +122,36 @@
          Eigen::VectorXd Y(9);
          Y <<  poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z,
              mPoseFilter->state()(3), mPoseFilter->state()(4), mPoseFilter->state()(5), mPoseFilter->state()(6), mPoseFilter->state()(7), mPoseFilter->state()(8);
+
+         ROS_INFO("dt:%f, x:%f, y:%f, z:%f, vx:%f, vy:%f, vz:%f, ax:%f, ay:%f, az:%f", dt,
+               mPoseFilter->state()(0), mPoseFilter->state()(1), mPoseFilter->state()(2), mPoseFilter->state()(3), mPoseFilter->state()(4), mPoseFilter->state()(5), mPoseFilter->state()(6)
+               , mPoseFilter->state()(7), mPoseFilter->state()(8));
+          mPoseFilter->measurementUpdate(Y, dt);
+       }
+       pthread_mutex_unlock(&mPoseFilter_mtx);
+       pthread_mutex_unlock(&mGPSUTMData_mtx);
+
+       pthread_mutex_lock(&mGPSTwistData_mtx);
+       pthread_mutex_lock(&mPoseFilter_mtx);
+       queueSize = mGPSTwistData.size();
+       for (size_t i = 0; i < queueSize; i++)
+       {
+         ROS_INFO("Using data #%d of mGPSTwistDataSize:%d", static_cast<int>(i), static_cast<int>(queueSize));
+         geometry_msgs::TwistStamped GPSTwistStamped  = mGPSTwistData[0];
+         mGPSTwistData.pop_front();
+         Eigen::VectorXd Y(9);
+         Y <<  mPoseFilter->state()(0), mPoseFilter->state()(1), mPoseFilter->state()(2),
+             GPSTwistStamped.twist.linear.x, GPSTwistStamped.twist.linear.y, GPSTwistStamped.twist.linear.z, mPoseFilter->state()(6), mPoseFilter->state()(7), mPoseFilter->state()(8);
            ROS_INFO("dt:%f, x:%f, y:%f, z:%f, vx:%f, vy:%f, vz:%f, ax:%f, ay:%f, az:%f", dt,
                mPoseFilter->state()(0), mPoseFilter->state()(1), mPoseFilter->state()(2), mPoseFilter->state()(3), mPoseFilter->state()(4), mPoseFilter->state()(5), mPoseFilter->state()(6)
                , mPoseFilter->state()(7), mPoseFilter->state()(8));
           mPoseFilter->measurementUpdate(Y, dt);
        }
-       pthread_mutex_unlock(&mGPSUTMData_mtx);
+       pthread_mutex_unlock(&mPoseFilter_mtx);
+       pthread_mutex_unlock(&mGPSTwistData_mtx);
+
+
+       pthread_mutex_unlock(&mMeasurementUpdate_mtx);
    }
  }
 
