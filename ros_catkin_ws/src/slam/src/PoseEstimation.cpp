@@ -49,29 +49,34 @@
  void PoseEstimation::onGPSFixReceived(const sensor_msgs::NavSatFix::ConstPtr& msg)
  {
    ROS_INFO("Received GPS data lat:%f, long:%f, alt:%f", msg->latitude, msg->longitude, msg->altitude);
-     geographic_msgs::GeoPoint geo_pt;
-     geo_pt.latitude = msg->latitude;
-     geo_pt.longitude = msg->longitude;
-     geo_pt.altitude = msg->altitude;
-     geodesy::UTMPoint UTMPt(geo_pt);
+   geographic_msgs::GeoPoint geo_pt;
+   geo_pt.latitude = msg->latitude;
+   geo_pt.longitude = msg->longitude;
+   geo_pt.altitude = msg->altitude;
+   geodesy::UTMPoint UTMPt(geo_pt);
 
-     if (mOffsetUTMPoint.zone == 0)
-     {
-       mOffsetUTMPoint = UTMPt;
-     }
+   if (mOffsetUTMPoint.zone == 0)
+   {
+     mOffsetUTMPoint = UTMPt;
+   }
 
-     geometry_msgs::PoseStamped poseStamped;
-     poseStamped.header.frame_id = "world";
-     poseStamped.pose.position.x = UTMPt.easting - mOffsetUTMPoint.easting;
-     poseStamped.pose.position.y = UTMPt.northing - mOffsetUTMPoint.northing;
-     poseStamped.pose.position.z = UTMPt.altitude - mOffsetUTMPoint.altitude;
-     ROS_INFO("Raw Pose x:%f, y:%f, z:%f", poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z);
+   geometry_msgs::PoseStamped poseStamped;
+   poseStamped.header.frame_id = "world";
+   poseStamped.pose.position.x = UTMPt.easting - mOffsetUTMPoint.easting;
+   poseStamped.pose.position.y = UTMPt.northing - mOffsetUTMPoint.northing;
+   poseStamped.pose.position.z = UTMPt.altitude - mOffsetUTMPoint.altitude;
+   ROS_INFO("Raw Pose x:%f, y:%f, z:%f", poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z);
 
-     pthread_mutex_lock(&mGPSUTMData_mtx);
-     mGPSUTMData.push_back(poseStamped);
-     ROS_INFO("Notifying measurementUpdateThread of new data..");
-     pthread_cond_signal(&mGPSUTMData_cond);
-     pthread_mutex_unlock(&mGPSUTMData_mtx);
+   pthread_mutex_lock(&mGPSUTMData_mtx);
+   mGPSUTMData.push_back(poseStamped);
+   ROS_INFO("Notifying measurementUpdateThread of new data..");
+   pthread_cond_signal(&mGPSUTMData_cond);
+   pthread_mutex_unlock(&mGPSUTMData_mtx);
+ }
+
+ void PoseEstimation::onGPSTwistReceived(const geometry_msgs::TwistStamped::ConstPtr& msg)
+ {
+   ROS_INFO("Received GPS Twist data linear_x:%f, linear_y:%f, linear_z:%f", msg->twist.linear.x, msg->twist.linear.y, msg->twist.linear.z);
  }
 
  void PoseEstimation::measurementUpdateThreadEntry()

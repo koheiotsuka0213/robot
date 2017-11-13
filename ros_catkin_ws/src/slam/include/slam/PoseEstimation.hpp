@@ -14,6 +14,7 @@
 #include "slam/KalmanFilter.hpp"
 #include "sensor_msgs/NavSatFix.h"
 #include "geometry_msgs/PoseStamped.h"
+#include "geometry_msgs/TwistStamped.h"
 
 class PoseEstimation {
 
@@ -25,6 +26,8 @@ public:
 
  void setPoseFilter(IPoseFilter * poseFilter);
  void onGPSFixReceived(const sensor_msgs::NavSatFix::ConstPtr& msg);
+ void onGPSTwistReceived(const geometry_msgs::TwistStamped::ConstPtr& msg);
+
  void measurementUpdateThreadEntry();
  static void * measurementUpdateThreadFunc(void * This) {((PoseEstimation *)This)->measurementUpdateThreadEntry(); return NULL;}
  void predictionUpdateThreadEntry();

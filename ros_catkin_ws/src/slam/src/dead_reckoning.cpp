@@ -29,6 +29,7 @@ int main(int argc, char **argv)
   poseEstimation.init();
 
   ros::Subscriber GPSNavSatFix_sub = n.subscribe("/kitti/oxts/gps/fix", 1000, &PoseEstimation::onGPSFixReceived, &poseEstimation);
+  ros::Subscriber GPSTwist_sub = n.subscribe("/kitti/oxts/gps/vel", 1000, &PoseEstimation::onGPSTwistReceived, &poseEstimation);
 
   deadReckoingResultPub = n.advertise<geometry_msgs::PoseStamped>("deadReckoingResult", 1000);
 
@@ -39,16 +40,15 @@ int main(int argc, char **argv)
 
   while(ros::ok())
   {
-      ROS_INFO("Before get state..");
-      Eigen::VectorXd state = poseEstimation.getState();
-      geometry_msgs::PoseStamped poseStamped;
-      poseStamped.header.frame_id = "world";
-      poseStamped.pose.position.x = state(0);
-      poseStamped.pose.position.y = state(1);
-      poseStamped.pose.position.z = state(2);
-      ROS_INFO("DR Result x:%f, y:%f, z:%f", poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z);
-      deadReckoingResultPub.publish(poseStamped);
-      r.sleep();
+    Eigen::VectorXd state = poseEstimation.getState();
+    geometry_msgs::PoseStamped poseStamped;
+    poseStamped.header.frame_id = "world";
+    poseStamped.pose.position.x = state(0);
+    poseStamped.pose.position.y = state(1);
+    poseStamped.pose.position.z = state(2);
+    ROS_INFO("DR Result x:%f, y:%f, z:%f", poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z);
+    deadReckoingResultPub.publish(poseStamped);
+    r.sleep();
   }
 
   return 0;
