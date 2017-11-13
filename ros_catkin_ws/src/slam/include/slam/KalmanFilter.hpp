@@ -8,11 +8,11 @@
 #ifndef KALMANFILTER_HPP_
 #define KALMANFILTER_HPP_
 
-#include <Eigen/Dense>
+#include "slam/IPoseFilter.hpp"
 
 #pragma once
 
-class KalmanFilter {
+class KalmanFilter : public IPoseFilter {
 
 public:
 
@@ -51,18 +51,8 @@ public:
   void predictionUpdate(const Eigen::MatrixXd A, double dt);
 
   void measurementUpdate(const Eigen::VectorXd& y, double dt);
-  /**
-  * Update the estimated state based on measured values. The
-  * time step is assumed to remain constant.
-  */
-  // void update(const Eigen::VectorXd& y);
 
-  /**
-  * Update the estimated state based on measured values,
-  * using the given time step and dynamics matrix.
-  */
-  // void update(const Eigen::VectorXd& y, double dt, const Eigen::MatrixXd A);
-
+  EFilterMethod getPoseFilterMethod() {return KALMAN_FILTER; };
   /**
   * Return the current state and time.
   */
