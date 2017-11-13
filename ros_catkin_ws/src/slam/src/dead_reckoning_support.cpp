@@ -24,8 +24,11 @@
 ros::Publisher DRTrajRawPub;
 ros::Publisher DRTrajPub;
 geodesy::UTMPoint OffsetUTMPoint;
+geometry_msgs::PoseStamped firstRawPt;
+bool hasAllRawPts = false;
 void ondeadReckoingResultReceived(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
+
   static visualization_msgs::Marker points, line_strip, line_list;
   points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = "world";
   points.header.stamp = line_strip.header.stamp = line_list.header.stamp = ros::Time::now();
@@ -64,15 +67,16 @@ void ondeadReckoingResultReceived(const geometry_msgs::PoseStamped::ConstPtr& ms
   p.x = msg->pose.position.x;
   p.y = msg->pose.position.y;
   p.z = msg->pose.position.z;
+  if (!hasAllRawPts)
+  {
+    points.points.push_back(p);
+    line_strip.points.push_back(p);
 
-  points.points.push_back(p);
-  line_strip.points.push_back(p);
-
-  // The line list needs two points for each line
-  line_list.points.push_back(p);
-  p.z += 1.0;
-  line_list.points.push_back(p);
-
+    // The line list needs two points for each line
+    line_list.points.push_back(p);
+      p.z += 1.0;
+    line_list.points.push_back(p);
+  }
   DRTrajPub.publish(points);
   // DRTrajPub.publish(line_strip);
   // DRTrajPub.publish(line_list);
@@ -139,13 +143,25 @@ void onrawPositioningResultReceived(const sensor_msgs::NavSatFix::ConstPtr& msg)
   p.y = poseStamped.pose.position.y;
   p.z = poseStamped.pose.position.z;
 
-  points.points.push_back(p);
-  line_strip.points.push_back(p);
+  if (firstRawPt.pose.position.x == 0 && firstRawPt.pose.position.y == 0 && firstRawPt.pose.position.z == 0)
+  {
+      firstRawPt = poseStamped;
+  }
+  else if (firstRawPt.pose.position.x == p.x && firstRawPt.pose.position.y == p.y && firstRawPt.pose.position.z == p.z)
+  {
+      hasAllRawPts = true;
+  }
 
-  // The line list needs two points for each line
-  line_list.points.push_back(p);
-  p.z += 1.0;
-  line_list.points.push_back(p);
+  if (!hasAllRawPts)
+  {
+    points.points.push_back(p);
+    line_strip.points.push_back(p);
+
+    // The line list needs two points for each line
+    line_list.points.push_back(p);
+    p.z += 1.0;
+    line_list.points.push_back(p);
+  }
 
   DRTrajRawPub.publish(points);
 }
