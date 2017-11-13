@@ -55,7 +55,7 @@ void onGPSFixReceived(const sensor_msgs::NavSatFix::ConstPtr& msg)
   double dt = 0.01;
   Y <<  poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z,
       kf.state()(3), kf.state()(4), kf.state()(5), kf.state()(6), kf.state()(7), kf.state()(8);
-  ROS_INFO("x:%f, y:%f, z:%f, vx:%f, vy:%f, vz:%f, ax:%f, ay:%f, az:%f",
+  ROS_INFO("dt:%f, x:%f, y:%f, z:%f, vx:%f, vy:%f, vz:%f, ax:%f, ay:%f, az:%f", dt,
       kf.state()(0), kf.state()(1), kf.state()(2), kf.state()(3), kf.state()(4), kf.state()(5), kf.state()(6)
       , kf.state()(7), kf.state()(8));
   kf.measurementUpdate(Y, dt);
@@ -138,6 +138,30 @@ KalmanFilter getKalmanFilterInstance()
   return kf;
 }
 
+void updateSystemDynamicsMxWIthdt(Eigen::MatrixXd& A, double dt)
+{
+  A << 1.0, 0.0, 0.0, dt, 0.0, 0.0, 1/2.0*dt*dt, 0.0, 0.0,
+       0.0, 1.0, 0.0, 0.0,  dt, 0.0, 0.0, 1/2.0*dt*dt, 0.0,
+       0.0, 0.0, 1.0, 0.0, 0.0,  dt, 0.0, 0.0, 1/2.0*dt*dt,
+       0.0, 0.0, 0.0, 1.0, 0.0, 0.0,  dt, 0.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,  dt, 0.0,
+       0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,  dt,
+       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0;
+
+  A(0, 3) = dt;
+  A(0, 6) = 1/2.0*dt*dt;
+  A(1, 4) = dt;
+  A(1, 7) = 1/2.0*dt*dt;
+  A(2, 5) = dt;
+  A(2, 8) = 1/2.0*dt*dt;
+
+  A(3, 6) = dt;
+  A(4, 7) = dt;
+  A(5, 8) = dt;
+}
+
 int main(int argc, char **argv)
 {
 
@@ -150,22 +174,26 @@ int main(int argc, char **argv)
   rawPositioningResultPub = n.advertise<geometry_msgs::PoseStamped>("rawPositioningResult", 1000);
   deadReckoingResultPub = n.advertise<geometry_msgs::PoseStamped>("deadReckoingResult", 1000);
 
-  //ros::spin();
   ros::AsyncSpinner spinner(2);
   spinner.start();
 
   kf = getKalmanFilterInstance();
+  ros::Time lastUpdateTime = ros::Time::now();
   ros::Rate r(200); // 200 hz
-  double dt = 0.005;
+
   while(ros::ok())
   {
-      kf.predictionUpdate(kf.getA(), dt);
+      double dt = ros::Time::now().toSec() - lastUpdateTime.toSec();
+      Eigen::MatrixXd A = kf.getA();
+      updateSystemDynamicsMxWIthdt(A, dt);
+      kf.predictionUpdate(A, dt);
+      lastUpdateTime = ros::Time::now();
       geometry_msgs::PoseStamped poseStamped;
       poseStamped.header.frame_id = "world";
       poseStamped.pose.position.x = kf.state()(0);
       poseStamped.pose.position.y = kf.state()(1);
       poseStamped.pose.position.z = kf.state()(2);
-     // ROS_INFO("DR Result x:%f, y:%f, z:%f", poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z);
+      ROS_INFO("DR Result x:%f, y:%f, z:%f, dt:%f", poseStamped.pose.position.x, poseStamped.pose.position.y, poseStamped.pose.position.z, dt);
       deadReckoingResultPub.publish(poseStamped);
       r.sleep();
   }
