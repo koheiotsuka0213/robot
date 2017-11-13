@@ -42,10 +42,16 @@ IPoseFilter * mPoseFilter;
 pthread_t mSensorMeasurementUpdateThrd;
 pthread_t mPredictionUpdateThrd;
 
+pthread_cond_t mMeasurementUpdate_cond;
+pthread_mutex_t  mMeasurementUpdate_mtx;
+
 geodesy::UTMPoint mOffsetUTMPoint;
 pthread_mutex_t  mGPSUTMData_mtx;
-pthread_cond_t mGPSUTMData_cond;
 std::deque<geometry_msgs::PoseStamped> mGPSUTMData;
+
+pthread_mutex_t  mGPSTwistData_mtx;
+pthread_cond_t mGPSTwistData_cond;
+std::deque<geometry_msgs::TwistStamped> mGPSTwistData;
 
 pthread_mutex_t  mPoseFilter_mtx;
 

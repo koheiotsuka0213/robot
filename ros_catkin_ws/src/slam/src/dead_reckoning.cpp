@@ -36,7 +36,7 @@ int main(int argc, char **argv)
   ros::AsyncSpinner spinner(2);
   spinner.start();
 
-  ros::Rate r(200); // 200 hz
+  ros::Rate r(100); // 200 hz
 
   while(ros::ok())
   {
